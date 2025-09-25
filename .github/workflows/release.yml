@@ -1,88 +1,88 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+    push:
+        tags:
+            - "v*.*.*"
 
 permissions:
-  contents: write
+    contents: write
 
 jobs:
-  build-and-release:
-    name: Build and Release
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            asset_name: morsek-windows-amd64
-            nim_file: bin/morsek.exe
-            archive_cmd: '7z a ${{ github.workspace }}/morsek-windows-amd64.zip bin/morsek.exe'
-            asset_path: morsek-windows-amd64.zip
-          - os: ubuntu-latest
-            asset_name: morsek-linux-amd64
-            nim_file: bin/morsek
-            archive_cmd: 'tar -czf ${{ github.workspace }}/morsek-linux-amd64.tar.gz -C bin morsek'
-            asset_path: morsek-linux-amd64.tar.gz
-          - os: macos-latest
-            asset_name: morsek-macos-amd64
-            nim_file: bin/morsek
-            archive_cmd: 'tar -czf ${{ github.workspace }}/morsek-macos-amd64.tar.gz -C bin morsek'
-            asset_path: morsek-macos-amd64.tar.gz
+    build-and-release:
+        name: Build and Release
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                include:
+                    - os: windows-latest
+                      asset_name: morsek-windows-amd64
+                      nim_file: bin/morsek.exe
+                      archive_cmd: "7z a ${{ github.workspace }}/morsek-windows-amd64.zip bin/morsek.exe"
+                      asset_path: morsek-windows-amd64.zip
+                    - os: ubuntu-latest
+                      asset_name: morsek-linux-amd64
+                      nim_file: bin/morsek
+                      archive_cmd: "tar -czf ${{ github.workspace }}/morsek-linux-amd64.tar.gz -C bin morsek"
+                      asset_path: morsek-linux-amd64.tar.gz
+                    - os: macos-latest
+                      asset_name: morsek-macos-amd64
+                      nim_file: bin/morsek
+                      archive_cmd: "tar -czf ${{ github.workspace }}/morsek-macos-amd64.tar.gz -C bin morsek"
+                      asset_path: morsek-macos-amd64.tar.gz
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-    - name: Setup Nim
-      uses: jiro4989/setup-nim-action@v2
-      with:
-        nim-version: '2.2.4'
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+            - name: Setup Nim
+              uses: jiro4989/setup-nim-action@v2
+              with:
+                  nim-version: "2.2.4"
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install dependencies
-      run: nimble refresh && nimble install -y
+            - name: Install dependencies
+              run: nimble refresh && nimble install -y
 
-    - name: Build optimized release
-      run: nimble build -d:release
+            - name: Build optimized release
+              run: nimble build -d:release
 
-    - name: Strip binary (Linux/macOS)
-      if: matrix.os != 'windows-latest'
-      run: strip ${{ matrix.nim_file }}
+            - name: Strip binary (Linux/macOS)
+              if: matrix.os != 'windows-latest'
+              run: strip ${{ matrix.nim_file }}
 
-    - name: Create archive
-      run: ${{ matrix.archive_cmd }}
+            - name: Create archive
+              run: ${{ matrix.archive_cmd }}
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: ${{ matrix.asset_path }}
-        body: |
-          ## Morsek v${{ github.ref_name }}
-          
-          High-performance Morse code network protocol implementation.
-          
-          ### Downloads
-          
-          Choose the appropriate binary for your operating system:
-          - **Windows**: `morsek-windows-amd64.zip`
-          - **Linux**: `morsek-linux-amd64.tar.gz`  
-          - **macOS**: `morsek-macos-amd64.tar.gz`
-          
-          ### Usage
-          
-          Extract the archive and run:
-          ```bash
-          # Windows
-          morsek.exe
-          
-          # Linux/macOS
-          ./morsek
-          ```
-          
-          See [README.md](https://github.com/emrekayik/morsek#usage) for more details.
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Create Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  files: ${{ matrix.asset_path }}
+                  body: |
+                      ## Morsek v${{ github.ref_name }}
+
+                      High-performance Morse code network protocol implementation.
+
+                      ### Downloads
+
+                      Choose the appropriate binary for your operating system:
+                      - **Windows**: `morsek-windows-amd64.zip`
+                      - **Linux**: `morsek-linux-amd64.tar.gz`  
+                      - **macOS**: `morsek-macos-amd64.tar.gz`
+
+                      ### Usage
+
+                      Extract the archive and run:
+                      ```bash
+                      # Windows
+                      morsek.exe
+
+                      # Linux/macOS
+                      ./morsek
+                      ```
+
+                      See [README.md](https://github.com/emrekayik/morsek#usage) for more details.
+                  draft: false
+                  prerelease: false
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
