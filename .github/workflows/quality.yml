@@ -1,0 +1,63 @@
+name: Code Quality
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main]
+
+jobs:
+    quality:
+        name: Code Quality Checks
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Nim
+              uses: jiro4989/setup-nim-action@v2
+              with:
+                  nim-version: "2.2.4"
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Install dependencies
+              run: nimble refresh && nimble install -y
+
+            - name: Check syntax
+              run: |
+                  nim check src/morsek.nim
+                  nim check src/morsek/morse.nim
+                  nim check src/morsek/submodule.nim
+
+            - name: Generate documentation
+              run: |
+                  nim doc --project --index:on --git.url:https://github.com/${{ github.repository }} --git.commit:${{ github.sha }} src/morsek.nim
+
+            - name: Upload documentation
+              uses: actions/upload-artifact@v4
+              with:
+                  name: documentation
+                  path: htmldocs/
+
+    security:
+        name: Security Scan
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Run Trivy vulnerability scanner
+              uses: aquasecurity/trivy-action@master
+              with:
+                  scan-type: "fs"
+                  scan-ref: "."
+                  format: "sarif"
+                  output: "trivy-results.sarif"
+
+            - name: Upload Trivy scan results to GitHub Security tab
+              uses: github/codeql-action/upload-sarif@v3
+              if: always()
+              with:
+                  sarif_file: "trivy-results.sarif"
