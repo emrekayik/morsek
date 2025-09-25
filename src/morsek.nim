@@ -80,7 +80,7 @@ proc serializeMessage(text: string): seq[byte] =
 
 # --- Örnek Kullanım (Sunucu ve İstemci için temel) ---
 
-proc startClient() =
+proc startClient*() =
   let client = newSocket()
   client.connect("127.0.0.1", 9999.Port)
   
@@ -95,7 +95,7 @@ proc startClient() =
 
   client.close()
 
-proc startServer() =
+proc startServer*() =
   let server = newSocket()
   server.bindAddr(9999.Port)
   server.listen()

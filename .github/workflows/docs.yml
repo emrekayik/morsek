@@ -38,8 +38,10 @@ jobs:
     - name: Generate documentation
       run: |
         nim doc --project --index:on --git.url:https://github.com/${{ github.repository }} --git.commit:${{ github.sha }} src/morsek.nim
-        # Create index.html that redirects to main documentation
+        # Move htmldocs from src/ to root and create index.html
+        mv src/htmldocs ./ || true
         echo '<meta http-equiv="refresh" content="0; url=morsek.html">' > htmldocs/index.html
+        ls -la htmldocs/
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
