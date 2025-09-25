@@ -1,83 +1,83 @@
 name: Build and Test
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main]
 
 jobs:
-  test:
-    name: Test on ${{ matrix.os }} with Nim ${{ matrix.nim-version }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        nim-version: ['2.2.4', 'stable']
-      fail-fast: false
+    test:
+        name: Test on ${{ matrix.os }} with Nim ${{ matrix.nim-version }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [ubuntu-latest, windows-latest, macos-latest]
+                nim-version: ["2.2.4", "stable"]
+            fail-fast: false
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-    - name: Setup Nim
-      uses: jiro4989/setup-nim-action@v2
-      with:
-        nim-version: ${{ matrix.nim-version }}
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+            - name: Setup Nim
+              uses: jiro4989/setup-nim-action@v2
+              with:
+                  nim-version: ${{ matrix.nim-version }}
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install dependencies
-      run: nimble refresh && nimble install -y
+            - name: Install dependencies
+              run: nimble refresh && nimble install -y
 
-    - name: Run tests
-      run: nimble test
+            - name: Run tests
+              run: nimble test
 
-    - name: Build project
-      run: nimble build
+            - name: Build project
+              run: nimble build
 
-    - name: Upload artifacts (Windows)
-      if: matrix.os == 'windows-latest' && matrix.nim-version == '2.2.4'
-      uses: actions/upload-artifact@v4
-      with:
-        name: morsek-windows-x64
-        path: bin/morsek.exe
+            - name: Upload artifacts (Windows)
+              if: matrix.os == 'windows-latest' && matrix.nim-version == '2.2.4'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: morsek-windows-x64
+                  path: bin/morsek.exe
 
-    - name: Upload artifacts (Linux)
-      if: matrix.os == 'ubuntu-latest' && matrix.nim-version == '2.2.4'
-      uses: actions/upload-artifact@v4
-      with:
-        name: morsek-linux-x64
-        path: bin/morsek
+            - name: Upload artifacts (Linux)
+              if: matrix.os == 'ubuntu-latest' && matrix.nim-version == '2.2.4'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: morsek-linux-x64
+                  path: bin/morsek
 
-    - name: Upload artifacts (macOS)
-      if: matrix.os == 'macos-latest' && matrix.nim-version == '2.2.4'
-      uses: actions/upload-artifact@v4
-      with:
-        name: morsek-macos-x64
-        path: bin/morsek
+            - name: Upload artifacts (macOS)
+              if: matrix.os == 'macos-latest' && matrix.nim-version == '2.2.4'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: morsek-macos-x64
+                  path: bin/morsek
 
-  static-analysis:
-    name: Static Analysis
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    static-analysis:
+        name: Static Analysis
+        runs-on: ubuntu-latest
 
-    - name: Setup Nim
-      uses: jiro4989/setup-nim-action@v2
-      with:
-        nim-version: '2.2.4'
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: nimble refresh && nimble install -y
+            - name: Setup Nim
+              uses: jiro4989/setup-nim-action@v2
+              with:
+                  nim-version: "2.2.4"
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Check code style
-      run: |
-        # Check for basic code style issues
-        nimble check
+            - name: Install dependencies
+              run: nimble refresh && nimble install -y
 
-    - name: Compile with warnings as errors
-      run: |
-        nim c --verbosity:2 --hints:off --warnings:on --warningAsError:on src/morsek.nim
+            - name: Check code style
+              run: |
+                  # Check for basic code style issues
+                  nimble check
+
+            - name: Compile with warnings as errors
+              run: |
+                  nim c --verbosity:2 --hints:off --warnings:on --warningAsError:on src/morsek.nim

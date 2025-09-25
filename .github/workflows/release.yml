@@ -1,103 +1,103 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+    push:
+        tags:
+            - "v*.*.*"
 
 jobs:
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    release:
+        name: Create Release
+        runs-on: ubuntu-latest
+        outputs:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          ## Changes
-          
-          * See [CHANGELOG.md](CHANGELOG.md) for details
-          
-          ## Downloads
-          
-          Download the appropriate binary for your operating system below.
-        draft: false
-        prerelease: false
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-  build-release:
-    name: Build Release Binaries
-    needs: release
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            asset_name: morsek-windows-amd64.exe
-            nim_file: bin/morsek.exe
-          - os: ubuntu-latest
-            asset_name: morsek-linux-amd64
-            nim_file: bin/morsek
-          - os: macos-latest
-            asset_name: morsek-macos-amd64
-            nim_file: bin/morsek
+            - name: Create Release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ github.ref }}
+                  release_name: Release ${{ github.ref }}
+                  body: |
+                      ## Changes
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+                      * See [CHANGELOG.md](CHANGELOG.md) for details
 
-    - name: Setup Nim
-      uses: jiro4989/setup-nim-action@v2
-      with:
-        nim-version: '2.2.4'
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+                      ## Downloads
 
-    - name: Install dependencies
-      run: nimble refresh && nimble install -y
+                      Download the appropriate binary for your operating system below.
+                  draft: false
+                  prerelease: false
 
-    - name: Build optimized release
-      run: |
-        nimble build -d:release
+    build-release:
+        name: Build Release Binaries
+        needs: release
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                include:
+                    - os: windows-latest
+                      asset_name: morsek-windows-amd64.exe
+                      nim_file: bin/morsek.exe
+                    - os: ubuntu-latest
+                      asset_name: morsek-linux-amd64
+                      nim_file: bin/morsek
+                    - os: macos-latest
+                      asset_name: morsek-macos-amd64
+                      nim_file: bin/morsek
 
-    - name: Compress binary (Linux/macOS)
-      if: matrix.os != 'windows-latest'
-      run: |
-        strip ${{ matrix.nim_file }}
-        tar -czf ${{ matrix.asset_name }}.tar.gz ${{ matrix.nim_file }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-    - name: Compress binary (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        7z a ${{ matrix.asset_name }}.zip ${{ matrix.nim_file }}
+            - name: Setup Nim
+              uses: jiro4989/setup-nim-action@v2
+              with:
+                  nim-version: "2.2.4"
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload Release Asset (Linux/macOS)
-      if: matrix.os != 'windows-latest'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.release.outputs.upload_url }}
-        asset_path: ./${{ matrix.asset_name }}.tar.gz
-        asset_name: ${{ matrix.asset_name }}.tar.gz
-        asset_content_type: application/gzip
+            - name: Install dependencies
+              run: nimble refresh && nimble install -y
 
-    - name: Upload Release Asset (Windows)
-      if: matrix.os == 'windows-latest'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.release.outputs.upload_url }}
-        asset_path: ./${{ matrix.asset_name }}.zip
-        asset_name: ${{ matrix.asset_name }}.zip
-        asset_content_type: application/zip
+            - name: Build optimized release
+              run: |
+                  nimble build -d:release
+
+            - name: Compress binary (Linux/macOS)
+              if: matrix.os != 'windows-latest'
+              run: |
+                  strip ${{ matrix.nim_file }}
+                  tar -czf ${{ matrix.asset_name }}.tar.gz ${{ matrix.nim_file }}
+
+            - name: Compress binary (Windows)
+              if: matrix.os == 'windows-latest'
+              run: |
+                  7z a ${{ matrix.asset_name }}.zip ${{ matrix.nim_file }}
+
+            - name: Upload Release Asset (Linux/macOS)
+              if: matrix.os != 'windows-latest'
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ needs.release.outputs.upload_url }}
+                  asset_path: ./${{ matrix.asset_name }}.tar.gz
+                  asset_name: ${{ matrix.asset_name }}.tar.gz
+                  asset_content_type: application/gzip
+
+            - name: Upload Release Asset (Windows)
+              if: matrix.os == 'windows-latest'
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ needs.release.outputs.upload_url }}
+                  asset_path: ./${{ matrix.asset_name }}.zip
+                  asset_name: ${{ matrix.asset_name }}.zip
+                  asset_content_type: application/zip
