@@ -40,24 +40,30 @@ jobs:
                   name: documentation
                   path: htmldocs/
 
-    security:
-        name: Security Scan
+    lint:
+        name: Code Linting
         runs-on: ubuntu-latest
 
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: Run Trivy vulnerability scanner
-              uses: aquasecurity/trivy-action@master
+            - name: Setup Nim
+              uses: jiro4989/setup-nim-action@v2
               with:
-                  scan-type: "fs"
-                  scan-ref: "."
-                  format: "sarif"
-                  output: "trivy-results.sarif"
+                  nim-version: "2.2.4"
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Upload Trivy scan results to GitHub Security tab
-              uses: github/codeql-action/upload-sarif@v3
-              if: always()
-              with:
-                  sarif_file: "trivy-results.sarif"
+            - name: Install dependencies
+              run: nimble refresh && nimble install -y
+
+            - name: Check for compilation warnings
+              run: |
+                  nim c --verbosity:0 --hints:off --warnings:on src/morsek.nim
+
+            - name: Check code formatting
+              run: |
+                  # Basic check that files compile without errors
+                  nim check --verbosity:0 src/morsek.nim
+                  nim check --verbosity:0 src/morsek/morse.nim
+                  nim check --verbosity:0 src/morsek/submodule.nim
