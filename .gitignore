@@ -9,7 +9,7 @@ bin/
 dist/
 
 # Executables
-morsek
+/morsek
 morsek.exe
 *.exe
 *.app
