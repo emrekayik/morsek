@@ -3,6 +3,7 @@
 [![Build and Test](https://github.com/emrekayik/morsek/actions/workflows/build.yml/badge.svg)](https://github.com/emrekayik/morsek/actions/workflows/build.yml)
 [![Code Quality](https://github.com/emrekayik/morsek/actions/workflows/quality.yml/badge.svg)](https://github.com/emrekayik/morsek/actions/workflows/quality.yml)
 [![Release](https://github.com/emrekayik/morsek/actions/workflows/release.yml/badge.svg)](https://github.com/emrekayik/morsek/actions/workflows/release.yml)
+[![Documentation](https://github.com/emrekayik/morsek/actions/workflows/docs.yml/badge.svg)](https://emrekayik.github.io/morsek/)
 
 A high-performance Morse code network protocol implementation in Nim.
 
@@ -81,12 +82,31 @@ nimble test
 nim doc --project --index:on src/morsek.nim
 ```
 
+## Documentation
+
+📚 **API Documentation**: [https://emrekayik.github.io/morsek/](https://emrekayik.github.io/morsek/)
+
+The complete API documentation is automatically generated from source code comments and deployed to GitHub Pages. It includes:
+
+- **Module Documentation**: Detailed function and type information
+- **Code Examples**: Usage patterns and examples
+- **Cross-references**: Links between related functions and types
+
+### Local Documentation
+
+Generate documentation locally:
+```bash
+nimble docs
+# Opens in htmldocs/ directory
+```
+
 ## CI/CD
 
 This project uses GitHub Actions for:
 
 - **Build & Test**: Automated testing on Windows, Linux, and macOS
 - **Code Quality**: Static analysis and documentation generation
+- **Documentation**: Automatic deployment to GitHub Pages
 - **Releases**: Automated binary releases when tags are pushed
 
 ## License
@@ -101,7 +121,3 @@ MIT License - see [LICENSE](LICENSE) for details.
 4. Add tests for new functionality
 5. Ensure all tests pass
 6. Submit a pull request
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for version history and changes.
