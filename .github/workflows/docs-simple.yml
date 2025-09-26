@@ -1,0 +1,34 @@
+name: Deploy Documentation (Simple)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Nim
+      uses: jiro4989/setup-nim-action@v2
+      with:
+        nim-version: '2.2.4'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Install dependencies
+      run: nimble refresh && nimble install -y
+      
+    - name: Generate documentation
+      run: |
+        nim doc --project --index:on --git.url:https://github.com/${{ github.repository }} --git.commit:${{ github.sha }} src/morsek.nim
+        # Move htmldocs from src/ to root and create index.html
+        mv src/htmldocs ./ || true
+        echo '<meta http-equiv="refresh" content="0; url=morsek.html">' > htmldocs/index.html
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./htmldocs
