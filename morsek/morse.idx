@@ -1,0 +1,2 @@
+nimTitle	morse	morsek/morse.html	module src/morsek/morse		0
+nim	encodeMorse	morsek/morse.html#encodeMorse,string	proc encodeMorse(text: string): tuple[bits: seq[int], bitLength: int]		28

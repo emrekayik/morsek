@@ -1,0 +1,3 @@
+nimTitle	morsek	morsek.html	module src/morsek		0
+nim	startClient	morsek.html#startClient	proc startClient()		83
+nim	startServer	morsek.html#startServer	proc startServer()		98
