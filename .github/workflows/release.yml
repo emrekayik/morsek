@@ -55,7 +55,7 @@ jobs:
               run: ${{ matrix.archive_cmd }}
 
             - name: Create Release
-              uses: softprops/action-gh-release@v1
+              uses: softprops/action-gh-release@v2
               with:
                   files: ${{ matrix.asset_path }}
                   body: |
