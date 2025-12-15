@@ -37,21 +37,21 @@ jobs:
 
             - name: Upload artifacts (Windows)
               if: matrix.os == 'windows-latest' && matrix.nim-version == '2.2.4'
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v6
               with:
                   name: morsek-windows-x64
                   path: bin/morsek.exe
 
             - name: Upload artifacts (Linux)
               if: matrix.os == 'ubuntu-latest' && matrix.nim-version == '2.2.4'
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v6
               with:
                   name: morsek-linux-x64
                   path: bin/morsek
 
             - name: Upload artifacts (macOS)
               if: matrix.os == 'macos-latest' && matrix.nim-version == '2.2.4'
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v6
               with:
                   name: morsek-macos-x64
                   path: bin/morsek
